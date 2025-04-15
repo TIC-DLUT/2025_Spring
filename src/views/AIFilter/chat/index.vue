@@ -82,13 +82,13 @@
 <script setup lang="ts">
 import {ref, onMounted, nextTick, watch} from 'vue';
 import {marked} from 'marked';
-import hljs from 'highlight.js';
 import DOMPurify from 'dompurify';
 import {ChatDotRound, User, Service, Position, Loading} from '@element-plus/icons-vue';
 import {ElMessage} from 'element-plus';
 //获取layout小仓库
 import useLayoutStore from '@/store/modules/setting'
-import {SSE} from './sse'
+//@ts-ignore
+import {SSE} from './sse.js'
 import {GET_TOKEN} from "@/utils/tokens.ts";
 
 const layoutSettingStore = useLayoutStore()
@@ -198,7 +198,7 @@ const sendMessage = async () => {
         "Token": GET_TOKEN()
       }
     })
-    source.addEventListener('message', function (e) {
+    source.addEventListener('message', function (e:any) {
       messages.value[id].content += JSON.parse(e.data).data;
     })
 
