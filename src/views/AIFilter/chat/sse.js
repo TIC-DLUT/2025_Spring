@@ -18,7 +18,6 @@
  * limitations under the License.
  */
 
-
 /**
  * @type SSE
  * @param {string} url
@@ -35,13 +34,13 @@ var SSE = function (url, options) {
 
   options = options || {};
   this.headers = options.headers || {};
-  this.payload = options.payload !== undefined ? options.payload : '';
-  this.method = options.method || (this.payload && 'POST' || 'GET');
+  this.payload = options.payload !== undefined ? options.payload : "";
+  this.method = options.method || (this.payload && "POST") || "GET";
   this.withCredentials = !!options.withCredentials;
   this.debug = !!options.debug;
 
   /** @type {string} */
-  this.FIELD_SEPARATOR = ':';
+  this.FIELD_SEPARATOR = ":";
 
   /** @type { {[key: string]: [EventListener]} } */
   this.listeners = {};
@@ -53,14 +52,14 @@ var SSE = function (url, options) {
   /** @type {number} */
   this.progress = 0;
   /** @type {string} */
-  this.chunk = '';
+  this.chunk = "";
   /** @type {string} */
-  this.lastEventId = '';
+  this.lastEventId = "";
 
   /**
    * @type AddEventListener
    */
-  this.addEventListener = function(type, listener) {
+  this.addEventListener = function (type, listener) {
     if (this.listeners[type] === undefined) {
       this.listeners[type] = [];
     }
@@ -73,13 +72,13 @@ var SSE = function (url, options) {
   /**
    * @type RemoveEventListener
    */
-  this.removeEventListener = function(type, listener) {
+  this.removeEventListener = function (type, listener) {
     if (this.listeners[type] === undefined) {
       return;
     }
 
     const filtered = [];
-    this.listeners[type].forEach(function(element) {
+    this.listeners[type].forEach(function (element) {
       if (element !== listener) {
         filtered.push(element);
       }
@@ -94,7 +93,7 @@ var SSE = function (url, options) {
   /**
    * @type DispatchEvent
    */
-  this.dispatchEvent = function(e) {
+  this.dispatchEvent = function (e) {
     if (!e) {
       return true;
     }
@@ -105,7 +104,7 @@ var SSE = function (url, options) {
 
     e.source = this;
 
-    const onHandler = 'on' + e.type;
+    const onHandler = "on" + e.type;
     if (this.hasOwnProperty(onHandler)) {
       this[onHandler].call(this, e);
       if (e.defaultPrevented) {
@@ -114,7 +113,7 @@ var SSE = function (url, options) {
     }
 
     if (this.listeners[e.type]) {
-      return this.listeners[e.type].every(function(callback) {
+      return this.listeners[e.type].every(function (callback) {
         callback(e);
         return !e.defaultPrevented;
       });
@@ -124,36 +123,36 @@ var SSE = function (url, options) {
   };
 
   /** @private */
-  this._markClosed = function() {
+  this._markClosed = function () {
     this.xhr = null;
     this.progress = 0;
-    this.chunk = '';
+    this.chunk = "";
     this._setReadyState(SSE.CLOSED);
   };
 
   /** @private */
-  this._setReadyState = function(state) {
-    const event = new CustomEvent('readystatechange');
+  this._setReadyState = function (state) {
+    const event = new CustomEvent("readystatechange");
     event.readyState = state;
     this.readyState = state;
     this.dispatchEvent(event);
   };
 
-  this._onStreamFailure = function(e) {
-    const event = new CustomEvent('error');
+  this._onStreamFailure = function (e) {
+    const event = new CustomEvent("error");
     event.responseCode = e.currentTarget.status;
     event.data = e.currentTarget.response;
     this.dispatchEvent(event);
     this._markClosed();
-  }
+  };
 
-  this._onStreamAbort = function() {
-    this.dispatchEvent(new CustomEvent('abort'));
+  this._onStreamAbort = function () {
+    this.dispatchEvent(new CustomEvent("abort"));
     this._markClosed();
-  }
+  };
 
   /** @private */
-  this._onStreamProgress = function(e) {
+  this._onStreamProgress = function (e) {
     if (!this.xhr) {
       return;
     }
@@ -173,21 +172,23 @@ var SSE = function (url, options) {
      * so we always save the last part to merge it with the next incoming packet
      */
     const lastPart = parts.pop();
-    parts.forEach(function(part) {
+    parts.forEach(
+      function (part) {
         if (part.trim().length > 0) {
-            this.dispatchEvent(this._parseEventChunk(part));
+          this.dispatchEvent(this._parseEventChunk(part));
         }
-    }.bind(this));
+      }.bind(this),
+    );
     this.chunk = lastPart;
   };
 
   /** @private */
-  this._onStreamLoaded = function(e) {
+  this._onStreamLoaded = function (e) {
     this._onStreamProgress(e);
 
     // Parse the last chunk.
     this.dispatchEvent(this._parseEventChunk(this.chunk));
-    this.chunk = '';
+    this.chunk = "";
 
     this._markClosed();
   };
@@ -197,7 +198,7 @@ var SSE = function (url, options) {
    *
    * Reference: https://html.spec.whatwg.org/multipage/server-sent-events.html#dispatchMessage
    */
-  this._parseEventChunk = function(chunk) {
+  this._parseEventChunk = function (chunk) {
     if (!chunk || chunk.length === 0) {
       return null;
     }
@@ -206,64 +207,67 @@ var SSE = function (url, options) {
       console.debug(chunk);
     }
 
-    const e = {'id': null, 'retry': null, 'data': null, 'event': null};
-    chunk.split(/\n|\r\n|\r/).forEach(function(line) {
-      const index = line.indexOf(this.FIELD_SEPARATOR);
-      let field, value;
-      if (index > 0) {
-        // only first whitespace should be trimmed
-        const skip = (line[index + 1] === ' ') ? 2 : 1;
-        field = line.substring(0, index);
-        value = line.substring(index + skip);
-      } else if (index < 0) {
-        // Interpret the entire line as the field name, and use the empty string as the field value
-        field = line;
-        value = '';
-      } else {
-        // A colon is the first character. This is a comment; ignore it.
-        return;
-      }
+    const e = { id: null, retry: null, data: null, event: null };
+    chunk.split(/\n|\r\n|\r/).forEach(
+      function (line) {
+        const index = line.indexOf(this.FIELD_SEPARATOR);
+        let field, value;
+        if (index > 0) {
+          // only first whitespace should be trimmed
+          const skip = line[index + 1] === " " ? 2 : 1;
+          field = line.substring(0, index);
+          value = line.substring(index + skip);
+        } else if (index < 0) {
+          // Interpret the entire line as the field name, and use the empty string as the field value
+          field = line;
+          value = "";
+        } else {
+          // A colon is the first character. This is a comment; ignore it.
+          return;
+        }
 
-      if (!(field in e)) {
-        return;
-      }
+        if (!(field in e)) {
+          return;
+        }
 
-      // consecutive 'data' is concatenated with newlines
-      if (field === 'data' && e[field] !== null) {
-          e['data'] += "\n" + value;
-      } else {
-        e[field] = value;
-      }
-    }.bind(this));
+        // consecutive 'data' is concatenated with newlines
+        if (field === "data" && e[field] !== null) {
+          e["data"] += "\n" + value;
+        } else {
+          e[field] = value;
+        }
+      }.bind(this),
+    );
 
     if (e.id !== null) {
       this.lastEventId = e.id;
     }
 
-    const event = new CustomEvent(e.event || 'message');
+    const event = new CustomEvent(e.event || "message");
     event.id = e.id;
-    event.data = e.data || '';
+    event.data = e.data || "";
     event.lastEventId = this.lastEventId;
     return event;
   };
 
-  this._onReadyStateChange = function() {
+  this._onReadyStateChange = function () {
     if (!this.xhr) {
       return;
     }
 
     if (this.xhr.readyState === XMLHttpRequest.HEADERS_RECEIVED) {
       const headers = {};
-      const headerPairs = this.xhr.getAllResponseHeaders().trim().split('\r\n');
+      const headerPairs = this.xhr.getAllResponseHeaders().trim().split("\r\n");
       for (const headerPair of headerPairs) {
-          const [key, ...valueParts] = headerPair.split(':');
-          const value = valueParts.join(':').trim();
-          // Ensure the header value is always an array
-          headers[key.trim().toLowerCase()] = headers[key.trim().toLowerCase()] || [];
-          headers[key.trim().toLowerCase()].push(value);
+        const [key, ...valueParts] = headerPair.split(":");
+        const value = valueParts.join(":").trim();
+        // Ensure the header value is always an array
+        headers[key.trim().toLowerCase()] =
+          headers[key.trim().toLowerCase()] || [];
+        headers[key.trim().toLowerCase()].push(value);
       }
 
-      const event = new CustomEvent('open');
+      const event = new CustomEvent("open");
       event.responseCode = this.xhr.status;
       event.headers = headers;
       this.dispatchEvent(event);
@@ -276,7 +280,7 @@ var SSE = function (url, options) {
    * @type Stream
    * @return {void}
    */
-  this.stream = function() {
+  this.stream = function () {
     if (this.xhr) {
       // Already connected.
       return;
@@ -285,11 +289,14 @@ var SSE = function (url, options) {
     this._setReadyState(SSE.CONNECTING);
 
     this.xhr = new XMLHttpRequest();
-    this.xhr.addEventListener('progress', this._onStreamProgress.bind(this));
-    this.xhr.addEventListener('load', this._onStreamLoaded.bind(this));
-    this.xhr.addEventListener('readystatechange', this._onReadyStateChange.bind(this));
-    this.xhr.addEventListener('error', this._onStreamFailure.bind(this));
-    this.xhr.addEventListener('abort', this._onStreamAbort.bind(this));
+    this.xhr.addEventListener("progress", this._onStreamProgress.bind(this));
+    this.xhr.addEventListener("load", this._onStreamLoaded.bind(this));
+    this.xhr.addEventListener(
+      "readystatechange",
+      this._onReadyStateChange.bind(this),
+    );
+    this.xhr.addEventListener("error", this._onStreamFailure.bind(this));
+    this.xhr.addEventListener("abort", this._onStreamAbort.bind(this));
     this.xhr.open(this.method, this.url);
     for (let header in this.headers) {
       this.xhr.setRequestHeader(header, this.headers[header]);
@@ -306,7 +313,7 @@ var SSE = function (url, options) {
    * @type Close
    * @return {void}
    */
-  this.close = function() {
+  this.close = function () {
     if (this.readyState === SSE.CLOSED) {
       return;
     }
@@ -328,9 +335,8 @@ SSE.OPEN = 1;
 /** @type {number} */
 SSE.CLOSED = 2;
 
-
 // Export our SSE module for npm.js
-if (typeof exports !== 'undefined') {
+if (typeof exports !== "undefined") {
   exports.SSE = SSE;
 }
 

@@ -1,21 +1,35 @@
 <template>
   <div class="layout_container">
     <!-- 左侧菜单 -->
-    <div class="layout_slider" :class="{fold:layoutSettingStore.fold?true:false}">
+    <div
+      class="layout_slider"
+      :class="{ fold: layoutSettingStore.fold ? true : false }"
+    >
       <Logo></Logo>
       <el-scrollbar class="scrollbar">
         <!-- 菜单组件 -->
-        <el-menu :collapse="layoutSettingStore.fold?true:false"  :default-active="route.path" text-color="white" background-color=#283646 >
+        <el-menu
+          :collapse="layoutSettingStore.fold ? true : false"
+          :default-active="route.path"
+          text-color="white"
+          background-color="#283646"
+        >
           <Menu :menuList="userStore.menuRoutes"></Menu>
         </el-menu>
       </el-scrollbar>
     </div>
     <!-- 顶部导航 -->
-    <div class="layout_tabbar" :class="{fold:layoutSettingStore.fold?true:false}">
+    <div
+      class="layout_tabbar"
+      :class="{ fold: layoutSettingStore.fold ? true : false }"
+    >
       <Tabbar></Tabbar>
     </div>
     <!-- 内容展示区 -->
-    <div class="layout_main" :class="{fold:layoutSettingStore.fold?true:false}">
+    <div
+      class="layout_main"
+      :class="{ fold: layoutSettingStore.fold ? true : false }"
+    >
       <Main></Main>
     </div>
   </div>
@@ -23,30 +37,30 @@
 
 <script lang="ts">
 export default {
-  name: 'Layout',
-}
+  name: "Layout",
+};
 </script>
 
 <script setup lang="ts">
 //引入左侧菜单组件
-import Logo from '@/layout/logo/index.vue'
+import Logo from "@/layout/logo/index.vue";
 //引入菜单组件
-import Menu from '@/layout/menu/index.vue'
+import Menu from "@/layout/menu/index.vue";
 //引入主页面组件
-import Main from '@/layout/main/index.vue'
+import Main from "@/layout/main/index.vue";
 //引入tabbar组件
-import Tabbar from '@/layout/tabbar/index.vue'
+import Tabbar from "@/layout/tabbar/index.vue";
 //获取user小仓库
-import useUserStore from '@/store/modules/user'
+import useUserStore from "@/store/modules/user";
 //获取layout小仓库
-import useLayoutStore from '@/store/modules/setting'
+import useLayoutStore from "@/store/modules/setting";
 //获取路由对象
-import { useRoute } from 'vue-router'
+import { useRoute } from "vue-router";
 
 //获取路由对象
-const route = useRoute()
-const userStore = useUserStore()
-const layoutSettingStore = useLayoutStore()
+const route = useRoute();
+const userStore = useUserStore();
+const layoutSettingStore = useLayoutStore();
 </script>
 
 <style lang="less" scoped>
@@ -73,9 +87,8 @@ const layoutSettingStore = useLayoutStore()
 
     &.fold {
       width: @menu-fold-width;
-      }
     }
-  
+  }
 
   .layout_tabbar {
     position: fixed;
