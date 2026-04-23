@@ -3,22 +3,41 @@
     <div class="login_card">
       <h2 class="title">欢迎登录</h2>
 
-      <el-form class="login_form" :model="form" ref="loginForms">
-        <el-form-item class="form_group" prop="username">
-          <el-input v-model="form.telephone" placeholder="请输入电话号" :prefix-icon="User" class="custom_input"/>
+      <el-form class="login_form" :model="form" :rules="rules" ref="loginForms">
+        <el-form-item class="form_group" prop="telephone">
+          <el-input
+            v-model="form.telephone"
+            placeholder="请输入电话号"
+            :prefix-icon="User"
+            class="custom_input"
+          />
         </el-form-item>
 
         <el-form-item class="form_group" prop="password">
-          <el-input v-model="form.password" type="password" placeholder="请输入密码" :prefix-icon="Lock" show-password
-                    class="custom_input"/>
+          <el-input
+            v-model="form.password"
+            type="password"
+            placeholder="请输入密码"
+            :prefix-icon="Lock"
+            show-password
+            class="custom_input"
+          />
         </el-form-item>
 
         <div class="button_container">
-          <el-button :loading="loading" class="action_btn submit_btn" @click="handleSubmit">
+          <el-button
+            :loading="loading"
+            class="action_btn submit_btn"
+            @click="handleSubmit"
+          >
             <span class="btn_text">立即登录</span>
             <span class="btn_wave"></span>
           </el-button>
-          <el-button :loading="registerLoading" class="action_btn register_btn" @click="goToRegister">
+          <el-button
+            :loading="registerLoading"
+            class="action_btn register_btn"
+            @click="goToRegister"
+          >
             <span class="btn_text">注册账号</span>
             <span class="btn_wave"></span>
           </el-button>
@@ -29,21 +48,21 @@
 </template>
 
 <script setup lang="ts">
-import {reactive, ref} from 'vue';
-import {User, Lock} from '@element-plus/icons-vue';
+import { reactive, ref } from "vue";
+import { User, Lock } from "@element-plus/icons-vue";
 
 //引入表单数据类型
-import type {LoginForm} from "@/api/user/type.ts";
+import type { LoginForm } from "@/api/user/type.ts";
 
 //引入用户相关小仓库
-import useUserStore from '@/store/modules/user.ts';
+import useUserStore from "@/store/modules/user.ts";
 
-import {useRouter} from 'vue-router';
+import { useRouter } from "vue-router";
 
-import {ElNotification} from 'element-plus'
+import { ElNotification } from "element-plus";
 
 //引入获取当前时间的函数
-import {getTime} from "@/utils/times.ts";
+import { getTime } from "@/utils/times.ts";
 
 const router = useRouter(); // 添加对 useRouter 的使用，创建 router 实例
 
@@ -52,10 +71,14 @@ const userStore = useUserStore();
 const loginForms = ref();
 
 const form = reactive<LoginForm>({
-  telephone: '',
-  password: ''
+  telephone: "",
+  password: "",
 });
 
+const rules = reactive({
+  telephone: [{ required: true, message: "请输入电话号码", trigger: "blur" }],
+  password: [{ required: true, message: "请输入密码", trigger: "blur" }],
+});
 
 //控制按钮加载效果
 let loading = ref(false);
@@ -79,24 +102,24 @@ const handleSubmit = async () => {
     //开始加载
     loading.value = true;
     await userStore.userLogin(form);
-    router.push('/AI_Filter/AI_Chat');
+    router.push("/AI_Filter/AI_Chat");
     //停止加载
     loading.value = false;
     //登陆成功提示信息
     ElNotification({
       message: `登录成功,${getTime()}`,
-      type: 'success',
-      duration: 2000
-    })
+      type: "success",
+      duration: 2000,
+    });
   } catch (error: any) {
     //加载停止
     loading.value = false;
     //登录失败提示
     ElNotification({
-      title: '登录失败',
+      title: "登录失败",
       message: error.message,
-      type: 'warning',
-    })
+      type: "warning",
+    });
   }
 };
 
@@ -109,18 +132,18 @@ const goToRegister = async () => {
     //登陆成功提示信息
     ElNotification({
       message: `注册成功,${getTime()}`,
-      type: 'success',
-      duration: 2000
-    })
+      type: "success",
+      duration: 2000,
+    });
   } catch (error: any) {
     //加载停止
     registerLoading.value = false;
     //登录失败提示
     ElNotification({
-      title: '注册失败',
+      title: "注册失败",
       message: error.message,
-      type: 'warning',
-    })
+      type: "warning",
+    });
   }
 };
 </script>
@@ -142,7 +165,9 @@ const goToRegister = async () => {
   width: 400px;
   display: flex;
   flex-direction: column;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .login_card:hover {
@@ -219,10 +244,12 @@ const goToRegister = async () => {
   left: -100%;
   width: 200%;
   height: 100%;
-  background: linear-gradient(90deg,
-  transparent,
-  rgba(255, 255, 255, 0.4) 50%,
-  transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent
+  );
   transform: translateX(-100%);
   transition: none;
   pointer-events: none;

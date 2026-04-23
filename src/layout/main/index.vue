@@ -9,13 +9,13 @@
 
 <script lang="ts">
 export default {
-  name: 'Main',
-}
+  name: "Main",
+};
 </script>
 
 <script setup lang="ts">
-import { watch, ref, nextTick } from 'vue';
-import useLayoutStore from '@/store/modules/setting';
+import { watch, ref, nextTick } from "vue";
+import useLayoutStore from "@/store/modules/setting";
 const layoutStore = useLayoutStore();
 //监听是否点击刷新按钮
 watch(
@@ -25,8 +25,8 @@ watch(
     flag.value = false;
     nextTick(() => {
       flag.value = true;
-    })
-  }
+    });
+  },
 );
 //控制组件是否销毁重建
 let flag = ref(true);
@@ -45,6 +45,5 @@ let flag = ref(true);
 .fade-enter-to {
   opacity: 1;
   transform: scale(1);
-
 }
 </style>
